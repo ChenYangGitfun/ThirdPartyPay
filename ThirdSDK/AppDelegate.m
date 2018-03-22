@@ -7,8 +7,9 @@
 //
 
 #import "AppDelegate.h"
-
-@interface AppDelegate ()
+#import "WXApi.h"
+#import <AlipaySDK/AlipaySDK.h>
+@interface AppDelegate ()<WXApiDelegate>
 
 @end
 
@@ -17,6 +18,8 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
+    [WXApi registerApp:@"wx81971c35613779b1"];
+    
     return YES;
 }
 
@@ -46,6 +49,31 @@
 - (void)applicationWillTerminate:(UIApplication *)application {
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
 }
-
+- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options {
+    if ([url.host isEqualToString:@"safepay"]) {//支付宝
+        [[AlipaySDK defaultService] processOrderWithPaymentResult:url standbyCallback:^(NSDictionary *resultDic) {
+            NSLog(@"%@",resultDic);
+        }];
+    }
+    if ([url.host isEqualToString:@"pay"]) {//微信
+        return [WXApi handleOpenURL:url delegate:self];
+    }
+    
+    return YES;
+}
+//微信支付回调
+- (void)onResp:(BaseResp *)resp {
+    if ([resp isKindOfClass:[PayResp class]]) {
+        PayResp* pp = (PayResp*)resp;
+        switch (pp.errCode) {
+            case WXSuccess:
+                NSLog(@"支付成功");
+                break;
+            default:
+                NSLog(@"支付失败");
+                break;
+        }
+    }
+}
 
 @end
