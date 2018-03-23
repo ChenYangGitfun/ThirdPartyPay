@@ -44,9 +44,6 @@
             NSLog(@"支付失败");
         }
     }];
-    
-    
-    
 }
 
 - (void)viewDidLoad {
@@ -59,6 +56,12 @@
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
-
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    SendAuthReq* req = [[SendAuthReq alloc]init];
+    req.scope = @"snsapi_userinfo";
+    req.state = @"123";
+    [WXApi sendReq:req];
+    
+}
 
 @end

@@ -18,8 +18,8 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
-    [WXApi registerApp:@"wx81971c35613779b1"];
-    
+  //  [WXApi registerApp:@"wx81971c35613779b1"];//支付
+    [WXApi registerApp:@"wx35c6c77293983275"];//登录
     return YES;
 }
 
@@ -55,10 +55,10 @@
             NSLog(@"%@",resultDic);
         }];
     }
-    if ([url.host isEqualToString:@"pay"]) {//微信
+    if ([url.host isEqualToString:@"pay"] || [url.host isEqualToString:@"oauth"]) {//微信
         return [WXApi handleOpenURL:url delegate:self];
     }
-    
+   
     return YES;
 }
 //微信支付回调
@@ -71,6 +71,18 @@
                 break;
             default:
                 NSLog(@"支付失败");
+                break;
+        }
+    }
+    if ([resp isKindOfClass:[SendAuthResp class]]) {
+        SendAuthResp* respp = (SendAuthResp*)resp;
+        switch (respp.errCode) {
+            case WXSuccess://https://api.weixin.qq.com/sns/oauth2/access_token?appid=APPID&secret=SECRET&code=CODE&grant_type=authorization_code
+                NSLog(@"登录成功,code:%@",respp.code);//将appid,secret,code拼接至上面url,获得登录信息
+                break;
+            
+            default:
+                NSLog(@"登录失败");
                 break;
         }
     }
